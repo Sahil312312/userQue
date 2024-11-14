@@ -7,6 +7,5 @@ class AppError  {
       this.isOperational = true;
     }
   }
-  //err module
   
   module.exports = AppError;
