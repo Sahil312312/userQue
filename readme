@@ -1,0 +1,114 @@
+# Project Title
+
+Node.js Task Queue with Rate Limiting and Logging
+
+This Node.js application implements a task queuing system with rate limiting for individual users. If the rate limit is exceeded, tasks are added to a queue and processed on a first-come, first-serve basis. Logs are saved to a file, allowing for easy monitoring and debugging.
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [API Documentation](#api-documentation)
+- [Packages](#packages)
+- [Examples](#examples)
+- [Logic](#logic)
+- [Logs](#log)
+
+
+
+
+## Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/yourproject.git
+   cd yourproject
+
+2. **Install dependencies:**
+    Command : npm install
+
+## Usage
+
+1. **Start Application:**
+   Command : npm start
+
+## features
+
+**1.Rate Limitation**
+**2.Task Queueing**
+**3.Logging**
+
+## api-documentation
+
+**API Used**
+*Endpoint* : /api/v1/task
+*Request* : POST
+*Body*: {
+    "userId":"val"
+}
+*userId* should be in string. 
+
+## packages
+
+**Packages:**
+1.Express(Framework for node.js to handle http requests)
+2.Redis(message queue to manage the task queueing.)
+3.Cluster(built-in node.js module for using multiple cores of CPU).
+4.dotenv for making enviroment variable
+5.joi for validation of requests.
+6.redis for making rate-limiting system.
+7.Nodemon  to run server
+
+## examples:
+
+**Example-1**
+EndPoint : api/v1/task
+{
+    "userId":"123"
+}
+
+## Logic
+
+**Rate Limiting Logic**
+
+1.Individual User Tracking:
+
+  a. Each user’s requests are tracked separately, with      user-specific keys in Redis to enforce rate limits on a  per-user basis.
+
+2.Request Limits:
+
+    a. Per Second Limit: Each user is allowed a maximum of 1 request per second.
+    b. Per Minute Limit: Each user is allowed a maximum of 20 requests per minute.
+
+3.Redis Keys for Rate Limits:
+
+    a. Minute Limit Key (minute-limit:{userId}): A sorted set that logs timestamps of each request in the last minute.
+    b.Second Limit Key (second-limit:{userId}): A key that acts as a flag to indicate if the user has made a request in the last second. This key expires in 1 second.
+
+4.Enforcement of Rate Limits:
+
+    a. Second Limit Check:
+        a. When a request is received, the second-limit key for the user is checked.
+        b. If this key exists, it indicates that the user has already made a request in the last second, and the request is added to the queue instead.
+    b. Minute Limit Check:
+        a. The minute-limit key is checked for the number of requests made in the last 60 seconds.
+        b. If the number of requests exceeds 20, the request is added to the queue.
+
+5.Request Queueing:
+
+    a. If a user exceeds either the second or minute rate limit, their request is added to a Redis list (taskQueue) for later processing.
+    b. This queue works on a first-come, first-serve (FCFS) basis.
+
+6.Task Processing:
+
+    a. A background process periodically checks the taskQueue to see if queued requests can be processed.
+    b. For each queued request, it verifies if the user’s current rate limit conditions allow processing.
+    c. If the user is under the rate limits, the request is processed; otherwise, it remains in the queue until the limits allow it to be processed.
+
+
+#log
+
+    All the logs are saved in local file named as **taskLog.txt**  present in Logs folder 
+
+
